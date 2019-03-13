@@ -34,7 +34,8 @@ def parse_arguments():
     parser.add_argument(
         '--action-space',
         type=int,
-        default=6,
+        delta=2
+        default=6 +delta,
         metavar='AS',
         help='# of actions (default: 5)')
     parser.add_argument(
