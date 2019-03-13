@@ -65,10 +65,11 @@ class Episode:
         reward = STEP_PENALTY 
         done = False
         action_was_successful = self.environment.last_action_success
-
+        
         if action['action'] == 'Done':
             done = True
             objects = self._env.last_event.metadata['objects']
+            print (objects)
             visible_objects = [o['objectType'] for o in objects if o['visible']]
             if self.target in visible_objects:
                 reward += GOAL_SUCCESS_REWARD
