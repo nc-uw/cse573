@@ -104,8 +104,18 @@ class Environment:
 
     def step(self, action_dict):
         curr_state = ThorAgentState.get_state_from_evenet(event=self.controller.last_event, forced_y=self.y)
+        # get NEXT_STATE given ACTION
         next_state = get_next_state(curr_state, action_dict['action'], copy_state=True)
+        
+        '''
+        # check-point:
+        if (action_dict['action'] == 'Found'):
+            torf = (next_state == curr_state)
+            print ('Q: Is next state same as current state / action = Found ?')
+            print ('A: ', torf)
+        '''
         if action_dict['action'] in ['LookUp', 'LookDown', 'RotateLeft', 'RotateRight', 'MoveAhead']:
+            print ('1st if.. printing action: ', action_dict['action'])
             if next_state is None:
                 self.last_event.metadata['lastActionSuccess'] = False
             else:
@@ -120,7 +130,15 @@ class Environment:
                     # Go back to previous state.
                     self.teleport_agent_to(curr_state.x, curr_state.y, curr_state.z, curr_state.rotation, curr_state.horizon)
                     self.last_event.metadata['lastActionSuccess'] = False
+        
+        ## check-point: retain state for action:Found
+        elif action_dict['action'] == 'Found':
+            # Go back to previous state (from line 128..)
+            self.teleport_agent_to(curr_state.x, curr_state.y, curr_state.z, curr_state.rotation, curr_state.horizon)
+            self.last_event.metadata['lastActionSuccess'] = True
+            
         elif action_dict['action'] != 'Done':
+            print ('2nd if.. printing action: ', action_dict['action'])
             return self.controller.step(action_dict)
 
     def teleport_agent_to(self, x, y, z, rotation, horizon):
