@@ -90,7 +90,7 @@ class Model(torch.nn.Module):
         state = model_input.state
 	additional_state_info = model_input.additional_state_info #augState
 	#check-print
-	print ('..printing additional_state_info tensor..', additional_state_info.data[0])
+	print ('forward model.py ..printing additional_state_info tensor..', additional_state_info.data[0])
 	
         (hx, cx) = model_input.hidden
 	x = self.embedding(state, additional_state_info) #pass augState to embedding
