@@ -91,8 +91,9 @@ class Episode:
                 self.additional_state_info = self.additional_state_info | np.array([False, True])
             if (self.additional_state_info == np.array([False, True]) or self.additional_state_info == np.array([True, False]))
                 print ('..REWARD UNLOCKED (found)..')
+                print ('.. aug: ', self.additional_state_info)
                 reward += 0.1
-
+                       
         ## DONE
         if action['action'] == 'Done':
             #print ('\nprinting details for Action:DONE..')
@@ -105,6 +106,7 @@ class Episode:
                 self.additional_state_info = self.additional_state_info | np.array([False, True])
             if (self.additional_state_info == np.array([True, True]))
                 print ('..MAXIMUM REWARD UNLOCKED! (done)')
+                print ('.. aug: ', self.additional_state_info)
                 reward += GOAL_SUCCESS_REWARD
                 
         return reward, done, action_was_successful
