@@ -32,6 +32,7 @@ class Episode:
 
         self.actions_list = [{'action':a} for a in BASIC_ACTIONS]
         self.actions_taken = []
+        self.additional_state_info = [0, 0]
 
     @property
     def environment(self):
