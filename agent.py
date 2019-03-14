@@ -55,7 +55,7 @@ class A3CAgent:
     @property
     def augState(self):
         ## convert self.episode.additional_state_info to tensor compatible with agent
-        augTensor = torch.tensor(self.episode.additional_state_info)
+        augTensor = torch.tensor(self.episode.additional_state_info.astype(float))
         return gpuify(augTensor.unsqueeze(0), self.gpu_id)
     
     @property
