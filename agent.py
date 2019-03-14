@@ -43,9 +43,20 @@ class A3CAgent:
         model_input = ModelInput()
         model_input.state = self.preprocess_frame(self.episode.state_for_agent())
         model_input.hidden = self.hidden
+        
+        ## add 'augState' as additional_state_info list to 'model_input' container
+        model_input.additional_state_info = self.augState
+        
         model_output = self.model.forward(model_input)
-        return model_output
 
+        return model_output
+    
+    
+    @property
+    def augState(self):
+        ## convert self.episode.additional_state_info to tensor compatible with agent?
+        return self.episode.additional_state_info
+    
     @property
     def state(self):
         return self.preprocess_frame(self.episode.state_for_agent())
