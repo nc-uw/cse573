@@ -46,9 +46,9 @@ class A3CAgent:
         
         ## add 'augState' as additional_state_info list to 'model_input' container
         model_input.additional_state_info = self.augState
+        print ('eval_at_state agent.py ..printing model_input.additional_state_info tensor..', model_input.additional_state_info.data[0])
         
         model_output = self.model.forward(model_input)
-
         return model_output
 
     #augState property
