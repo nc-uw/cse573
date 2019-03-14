@@ -50,12 +50,12 @@ class A3CAgent:
         model_output = self.model.forward(model_input)
 
         return model_output
-    
-    
+
+    #augState property
     @property
     def augState(self):
         ## convert self.episode.additional_state_info to tensor compatible with agent?
-        return self.episode.additional_state_info
+        return torch.tensor(self.episode.additional_state_info)
     
     @property
     def state(self):
