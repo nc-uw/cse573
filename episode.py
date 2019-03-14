@@ -6,6 +6,7 @@ import sys
 from constants import GOAL_SUCCESS_REWARD, STEP_PENALTY, BASIC_ACTIONS
 from environment import Environment
 from utils.net_util import gpuify
+import numpy as np
 
 
 class Episode:
@@ -32,8 +33,10 @@ class Episode:
 
         self.actions_list = [{'action':a} for a in BASIC_ACTIONS]
         self.actions_taken = []
-        self.additional_state_info = [0, 0]
-
+        
+        #augState init
+        self.additional_state_info = np.array([False, False])
+        
     @property
     def environment(self):
         return self._env
@@ -66,7 +69,7 @@ class Episode:
         reward = STEP_PENALTY 
         done = False
         action_was_successful = self.environment.last_action_success
-        
+        '''
         if action['action'] == 'Done':
             done = True
             objects = self._env.last_event.metadata['objects']
@@ -75,7 +78,35 @@ class Episode:
             if self.target in visible_objects:
                 reward += GOAL_SUCCESS_REWARD
                 self.success = True
+        '''
+        
+        ## FOUND
+        if action['action'] == 'Found':
+            #print ('\nprinting details for Action:FOUND..')
+            objects = self._env.last_event.metadata['objects']
+            visible_objects = [o['objectType'] for o in objects if o['visible']]
+            if 'TOMATO' in visible_objects:
+                self.additional_state_info = self.additional_state_info | np.array([True, False])
+            if 'BOWL' in visible_objects:
+                self.additional_state_info = self.additional_state_info | np.array([False, True])
+            if (self.additional_state_info == np.array([False, True]) or self.additional_state_info == np.array([True, False]))
+                print ('..REWARD UNLOCKED (found)..')
+                reward += 0.1
 
+        ## DONE
+        if action['action'] == 'Done':
+            #print ('\nprinting details for Action:DONE..')
+            done = True
+            objects = self._env.last_event.metadata['objects']
+            visible_objects = [o['objectType'] for o in objects if o['visible']]
+            if 'TOMATO' in visible_objects:
+                self.additional_state_info = self.additional_state_info | np.array([True, False])
+            if 'BOWL' in visible_objects:
+                self.additional_state_info = self.additional_state_info | np.array([False, True])
+            if (self.additional_state_info == np.array([True, True]))
+                print ('..MAXIMUM REWARD UNLOCKED! (done)')
+                reward += GOAL_SUCCESS_REWARD
+                
         return reward, done, action_was_successful
 
     def new_episode(self, args, scene):
@@ -96,10 +127,14 @@ class Episode:
         else:
             self._env.reset(scene)
 
-        # For now, single target.
-        self.target = 'Tomato'
+        # Updated target
+        self.target = ['Tomato', 'Bowl']
         self.success = False
         self.cur_scene = scene
         self.actions_taken = []
+        
+        #augState init
+        #self.additional_state_info = np.array([False, False])
+        #print ('self.additional_state_info', self.additional_state_info)
         
         return True
