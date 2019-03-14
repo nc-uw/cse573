@@ -53,6 +53,14 @@ class Model(torch.nn.Module):
         self.conv2.weight.data.mul_(relu_gain)
         self.conv3.weight.data.mul_(relu_gain)
         self.conv4.weight.data.mul_(relu_gain)
+	#augState weights
+	self.augmented_linear.weight.data = norm_col_init(
+            self.augmented_linear.weight.data, 0.01)
+        self.augmented_linear.bias.data.fill_(0)
+        self.augmented_combination.weight.data = norm_col_init(
+            self.augmented_combination.weight.data, 0.01)
+        self.augmented_combination.bias.data.fill_(0)
+	
         self.actor_linear.weight.data = norm_col_init(
             self.actor_linear.weight.data, 0.01)
         self.actor_linear.bias.data.fill_(0)
@@ -65,7 +73,7 @@ class Model(torch.nn.Module):
 
         self.train()
 
-    def embedding(self, state):
+    def embedding(self, state, additional_state_info):
         x = F.relu(self.maxp1(self.conv1(state)))
         x = F.relu(self.maxp2(self.conv2(x)))
         x = F.relu(self.maxp3(self.conv3(x)))
@@ -75,9 +83,9 @@ class Model(torch.nn.Module):
         
         # augState embedding
 	additional_score = self.augmented_linear(additional_state_info)
-	augmented_x = self.augmented_combination(torch.cat([x, additional_score]))
+	augmented_x = self.augmented_combination(torch.cat([x, additional_score], dim=1))
 	return augmented_x
-        #return x
+	#return x
 
     def a3clstm(self, x, hidden):
         hx, cx = self.lstm(x, hidden)
@@ -90,11 +98,11 @@ class Model(torch.nn.Module):
         state = model_input.state
 	additional_state_info = model_input.additional_state_info #augState
 	#check-print
-	print ('forward model.py ..printing additional_state_info tensor..', additional_state_info.data[0])
+	#print ('forward model.py ..printing additional_state_info tensor..', additional_state_info.data[0])
 	
-        (hx, cx) = model_input.hidden
+	(hx, cx) = model_input.hidden
 	x = self.embedding(state, additional_state_info) #pass augState to embedding
 	#x = self.embedding(state)
 	actor_out, critic_out, (hx, cx) = self.a3clstm(x, (hx, cx))
-
-        return ModelOutput(policy=actor_out, value=critic_out, hidden=(hx, cx))
+	
+	return ModelOutput(policy=actor_out, value=critic_out, hidden=(hx, cx))
