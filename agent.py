@@ -46,7 +46,7 @@ class A3CAgent:
         
         ## add 'augState' as additional_state_info list to 'model_input' container
         model_input.additional_state_info = self.augState
-        print ('eval_at_state agent.py ..printing model_input.additional_state_info tensor..', model_input.additional_state_info.data[0])
+        #print ('eval_at_state agent.py ..printing model_input.additional_state_info tensor..', model_input.additional_state_info.data[0])
         
         model_output = self.model.forward(model_input)
         return model_output
@@ -54,8 +54,9 @@ class A3CAgent:
     #augState property
     @property
     def augState(self):
-        ## convert self.episode.additional_state_info to tensor compatible with agent?
-        return torch.tensor(self.episode.additional_state_info)
+        ## convert self.episode.additional_state_info to tensor compatible with agent
+        augTensor = torch.tensor(self.episode.additional_state_info)
+        return gpuify(augTensor.unsqueeze(0), self.gpu_id)
     
     @property
     def state(self):
