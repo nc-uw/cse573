@@ -7,11 +7,11 @@ import torchvision
 
 class ModelInput:
     """ Input to the model. """
-    def __init__(self, state=None, hidden=None):
+    def __init__(self, state=None, hidden=None, additional_state_info = None):
         self.state = state
         self.hidden = hidden
 	# initialization for additional_state_info
-	self.additional_state_info = torch.tensor([0., 0.])
+	self.additional_state_info = additional_state_info
 
 class ModelOutput:
     """ Output of the model. """
