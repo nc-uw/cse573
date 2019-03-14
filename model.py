@@ -72,9 +72,9 @@ class Model(torch.nn.Module):
         x = x.view(x.size(0), -1)
         
         # augState embedding
-	    additional_score = self.augmented_linear(additional_state_info)
-	    augmented_x = self.augmented_combination(torch.cat([x, additional_score]))
-	    return augmented_x
+	additional_score = self.augmented_linear(additional_state_info)
+	augmented_x = self.augmented_combination(torch.cat([x, additional_score]))
+	return augmented_x
         #return x
 
     def a3clstm(self, x, hidden):
@@ -86,8 +86,10 @@ class Model(torch.nn.Module):
 
     def forward(self, model_input):
         state = model_input.state
+	additional_state_info = model_input.additional_state_info #augState
         (hx, cx) = model_input.hidden
-        x = self.embedding(state)
+        #x = self.embedding(state)
+	x = self.embedding(state, additional_state_info) #pass augState to embedding
         actor_out, critic_out, (hx, cx) = self.a3clstm(x, (hx, cx))
 
         return ModelOutput(policy=actor_out, value=critic_out, hidden=(hx, cx))
