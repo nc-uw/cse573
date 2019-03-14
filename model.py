@@ -10,6 +10,8 @@ class ModelInput:
     def __init__(self, state=None, hidden=None):
         self.state = state
         self.hidden = hidden
+	# initialization for additional_state_info
+	self.additional_state_info = torch.tensor([0., 0.])
 
 class ModelOutput:
     """ Output of the model. """
@@ -39,7 +41,7 @@ class Model(torch.nn.Module):
         additional_state_size = 2
         augmented_hidden_size = 10
         self.augmented_linear = nn.Linear(additional_state_size, augmented_hidden_size)
-	    self.augmented_combination = nn.Linear(1024 + augmented_hidden_size, 1024)
+	self.augmented_combination = nn.Linear(1024 + augmented_hidden_size, 1024)
         
         self.lstm = nn.LSTMCell(1024, args.hidden_state_sz)
         self.critic_linear = nn.Linear(args.hidden_state_sz, 1)
@@ -87,9 +89,12 @@ class Model(torch.nn.Module):
     def forward(self, model_input):
         state = model_input.state
 	additional_state_info = model_input.additional_state_info #augState
+	#check-print
+	print ('..printing additional_state_info tensor..', additional_state_info.data[0])
+	
         (hx, cx) = model_input.hidden
-        #x = self.embedding(state)
 	x = self.embedding(state, additional_state_info) #pass augState to embedding
-        actor_out, critic_out, (hx, cx) = self.a3clstm(x, (hx, cx))
+	#x = self.embedding(state)
+	actor_out, critic_out, (hx, cx) = self.a3clstm(x, (hx, cx))
 
         return ModelOutput(policy=actor_out, value=critic_out, hidden=(hx, cx))
